@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Over Quantity — ECG Deep Learning | University of Peradeniya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0e13;
+            --bg-card: #12161e;
+            --bg-card-alt: #161b25;
+            --accent: #dc4a3a;
+            --accent-soft: rgba(220,74,58,0.1);
+            --accent-glow: rgba(220,74,58,0.2);
+            --green: #2ecc71;
+            --yellow: #f1c40f;
+            --blue: #3498db;
+            --text: #e4e2df;
+            --text-muted: #858a95;
+            --text-dim: #4e5360;
+            --border: rgba(255,255,255,0.06);
+            --border-accent: rgba(220,74,58,0.25);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden;}
+
+        /* NAV */
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;background:rgba(11,14,19,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+        nav .logo{font-family:'DM Serif Display',serif;font-size:1.1rem;letter-spacing:-0.02em;}
+        nav .logo span{color:var(--accent);}
+        nav ul{list-style:none;display:flex;gap:2rem;}
+        nav a{color:var(--text-muted);text-decoration:none;font-size:0.82rem;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;transition:color 0.3s;}
+        nav a:hover{color:var(--accent);}
+        .menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;}
+
+        /* HERO */
+        .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 2rem 4rem;max-width:1100px;margin:0 auto;position:relative;}
+        .hero::before{content:'';position:absolute;top:10%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);pointer-events:none;opacity:0.3;}
+        .badge{display:inline-flex;align-items:center;gap:0.5rem;background:var(--accent-soft);border:1px solid var(--border-accent);border-radius:100px;padding:0.4rem 1rem;font-size:0.75rem;font-weight:600;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;width:fit-content;margin-bottom:2rem;}
+        .badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;}
+        .hero h1{font-family:'DM Serif Display',serif;font-size:clamp(2.4rem,5.5vw,4rem);line-height:1.1;letter-spacing:-0.03em;margin-bottom:1.5rem;}
+        .hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff7b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .hero-sub{font-size:1.12rem;color:var(--text-muted);max-width:660px;margin-bottom:2.5rem;}
+        .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;}
+        .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.6rem;border-radius:8px;font-size:0.88rem;font-weight:600;text-decoration:none;transition:all 0.3s;cursor:pointer;border:none;font-family:inherit;}
+        .btn-primary{background:var(--accent);color:#fff;}
+        .btn-primary:hover{background:#c93a2c;box-shadow:0 8px 30px var(--accent-glow);transform:translateY(-1px);}
+        .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+        .btn-outline:hover{border-color:var(--text-dim);background:var(--bg-card);}
+
+        /* SECTIONS */
+        section{max-width:1100px;margin:0 auto;padding:5rem 2rem;}
+        .section-label{font-size:0.72rem;font-weight:700;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.75rem;}
+        .section-title{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,3.5vw,2.5rem);letter-spacing:-0.02em;margin-bottom:1rem;}
+        .section-desc{color:var(--text-muted);max-width:620px;margin-bottom:3rem;font-size:1rem;}
+        .divider{border:none;border-top:1px solid var(--border);margin:0 auto;max-width:1100px;}
+
+        /* STATS ROW */
+        .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:4rem;}
+        .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;transition:border-color 0.3s;}
+        .stat-card:hover{border-color:var(--border-accent);}
+        .stat-value{font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--accent);margin-bottom:0.25rem;}
+        .stat-label{font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;}
+
+        /* CARDS GRID */
+        .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;}
+        .card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:2rem;transition:all 0.3s;}
+        .card:hover{border-color:var(--border-accent);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.3);}
+        .card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1.2rem;}
+        .card h3{font-size:1.1rem;font-weight:700;margin-bottom:0.6rem;letter-spacing:-0.01em;}
+        .card p{font-size:0.9rem;color:var(--text-muted);line-height:1.6;}
+
+        /* DATASET TABLE */
+        .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);}
+        table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+        thead{background:var(--bg-card-alt);}
+        th{padding:1rem 1.2rem;text-align:left;font-weight:600;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);border-bottom:1px solid var(--border);}
+        td{padding:0.9rem 1.2rem;border-bottom:1px solid var(--border);}
+        tbody tr:last-child td{border-bottom:none;}
+        tbody tr:hover{background:rgba(255,255,255,0.02);}
+        .tag{display:inline-block;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;}
+        .tag-green{background:rgba(46,204,113,0.12);color:var(--green);}
+        .tag-yellow{background:rgba(241,196,15,0.12);color:var(--yellow);}
+        .tag-blue{background:rgba(52,152,219,0.12);color:var(--blue);}
+        .tag-red{background:var(--accent-soft);color:var(--accent);}
+
+        /* ARCHITECTURE */
+        .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+        .arch-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:2rem;position:relative;overflow:hidden;}
+        .arch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+        .arch-card.cnn::before{background:linear-gradient(90deg,var(--blue),#2980b9);}
+        .arch-card.mamba::before{background:linear-gradient(90deg,var(--green),#27ae60);}
+        .arch-card h3{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:0.8rem;}
+        .arch-detail{font-size:0.85rem;color:var(--text-muted);margin-bottom:0.3rem;}
+        .arch-detail strong{color:var(--text);font-weight:600;}
+        .arch-specs{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+        .arch-specs code{font-family:'JetBrains Mono',monospace;font-size:0.8rem;background:rgba(255,255,255,0.05);padding:0.15rem 0.5rem;border-radius:4px;color:var(--text-muted);}
+
+        /* RESULTS */
+        .result-highlight{background:var(--bg-card);border:1px solid var(--border-accent);border-radius:12px;padding:2rem;text-align:center;margin-bottom:2rem;}
+        .result-highlight h3{font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:0.5rem;}
+        .result-highlight p{color:var(--text-muted);font-size:0.95rem;}
+        .ranking{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;letter-spacing:0.05em;margin:1rem 0;}
+        .ranking .a{color:var(--green);}
+        .ranking .gt{color:var(--text-dim);margin:0 0.4rem;}
+        .ranking .c{color:var(--yellow);}
+        .ranking .d{color:var(--accent);}
+
+        /* TEAM */
+        .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
+        .team-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:1.8rem;text-align:center;}
+        .team-avatar{width:64px;height:64px;border-radius:50%;background:var(--bg-card-alt);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--accent);}
+        .team-card h3{font-size:1rem;margin-bottom:0.2rem;}
+        .team-card .reg{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--text-dim);margin-bottom:0.5rem;}
+        .team-card .role{font-size:0.83rem;color:var(--text-muted);}
+        .supervisor-row{display:flex;flex-wrap:wrap;gap:1rem;margin-top:2rem;justify-content:center;}
+        .supervisor-tag{background:var(--bg-card);border:1px solid var(--border);border-radius:100px;padding:0.5rem 1.2rem;font-size:0.82rem;color:var(--text-muted);}
+        .supervisor-tag strong{color:var(--text);font-weight:600;}
+
+        /* FOOTER */
+        footer{text-align:center;padding:3rem 2rem;color:var(--text-dim);font-size:0.82rem;border-top:1px solid var(--border);}
+        footer a{color:var(--text-muted);text-decoration:none;}
+        footer a:hover{color:var(--accent);}
+
+        /* ANIMATIONS */
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+        .fade-in{opacity:0;transform:translateY(20px);transition:all 0.6s ease;}
+        .fade-in.visible{opacity:1;transform:translateY(0);}
+
+        /* MOBILE */
+        @media(max-width:768px){
+            nav ul{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(11,14,19,0.95);flex-direction:column;padding:1.5rem 2rem;gap:1rem;border-bottom:1px solid var(--border);}
+            nav ul.open{display:flex;}
+            .menu-toggle{display:block;}
+            .arch-grid{grid-template-columns:1fr;}
+            .hero h1{font-size:2rem;}
+            section{padding:3rem 1.2rem;}
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="logo"><span>Q</span>uality Over Quantity</div>
+    <button class="menu-toggle" onclick="document.querySelector('nav ul').classList.toggle('open')">&#9776;</button>
+    <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#datasets">Datasets</a></li>
+        <li><a href="#architectures">Models</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><a href="https://github.com/cepdnaclk/e20-co542-Quality-Over-Quantity-The-Impact-of-Diagnostic-Certainty" target="_blank">GitHub</a></li>
+    </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="badge">Final Year Project &bull; University of Peradeniya</div>
+    <h1>Quality Over Quantity:<br>The Impact of <em>Diagnostic Certainty</em> in Deep Learning for ECG Analysis</h1>
+    <p class="hero-sub">
+        We show that high-confidence, cardiologist-validated ECG labels produce more accurate, better-calibrated, and clinically interpretable deep learning models than larger but noisier datasets &mdash; across two architectures.
+    </p>
+    <div class="hero-actions">
+        <a href="#results" class="btn btn-primary">View Results &darr;</a>
+        <a href="https://github.com/cepdnaclk/e20-co542-Quality-Over-Quantity-The-Impact-of-Diagnostic-Certainty" target="_blank" class="btn btn-outline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 016.02 0c2.28-1.55 3.28-1.23 3.28-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58A12.01 12.01 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub Repo
+        </a>
+    </div>
+</div>
+
+<hr class="divider">
+
+<!-- ABOUT -->
+<section id="about">
+    <div class="section-label">About the Project</div>
+    <h2 class="section-title">Why Label Quality Matters</h2>
+    <p class="section-desc">
+        Most medical AI research focuses on collecting more data. We ask a different question: <strong>does the certainty of diagnostic labels matter more than dataset size?</strong>
+    </p>
+    <div class="stats fade-in">
+        <div class="stat-card">
+            <div class="stat-value">12</div>
+            <div class="stat-label">ECG Leads</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">7,593</div>
+            <div class="stat-label">Filtered ECGs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">2</div>
+            <div class="stat-label">Architectures</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Dataset Variants</div>
+        </div>
+    </div>
+    <div class="card-grid fade-in">
+        <div class="card">
+            <div class="card-icon" style="background:var(--accent-soft);">&#9829;</div>
+            <h3>Binary MI Detection</h3>
+            <p>Classifying 12-lead ECGs as Myocardial Infarction (MI) vs. Normal using the PTB-XL dataset with cardiologist-annotated SCP codes.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background:rgba(46,204,113,0.1);">&#9878;</div>
+            <h3>Ablation Study Design</h3>
+            <p>Same normal cases across all three datasets. Only the MI label certainty varies — isolating the effect of ground truth quality on model performance.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background:rgba(52,152,219,0.1);">&#9881;</div>
+            <h3>Clinical Interpretability</h3>
+            <p>Explainable AI (Grad-CAM &amp; Integrated Gradients) validates that high-certainty labels produce models focusing on physiologically correct ECG regions.</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- DATASETS -->
+<section id="datasets">
+    <div class="section-label">Dataset Design</div>
+    <h2 class="section-title">Three Variants, One Question</h2>
+    <p class="section-desc">
+        All training sets share the same 4,451 pure normal ECGs. They differ only in which MI cases are included &mdash; enabling a controlled comparison of label certainty.
+    </p>
+    <div class="table-wrap fade-in">
+        <table>
+            <thead>
+                <tr>
+                    <th>Dataset</th>
+                    <th>MI Type</th>
+                    <th>MI Cases</th>
+                    <th>Normal Cases</th>
+                    <th>Total Train</th>
+                    <th>Label Certainty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Dataset A</strong></td>
+                    <td><span class="tag tag-green">Certain MI</span></td>
+                    <td>1,194</td>
+                    <td>4,451</td>
+                    <td>5,645</td>
+                    <td>100% confidence, human-validated</td>
+                </tr>
+                <tr>
+                    <td><strong>Dataset C</strong></td>
+                    <td><span class="tag tag-yellow">All MI</span></td>
+                    <td>2,387</td>
+                    <td>4,451</td>
+                    <td>6,838</td>
+                    <td>Mixed (certain + uncertain)</td>
+                </tr>
+                <tr>
+                    <td><strong>Dataset D</strong></td>
+                    <td><span class="tag tag-red">Uncertain MI</span></td>
+                    <td>1,193</td>
+                    <td>4,451</td>
+                    <td>5,644</td>
+                    <td>&lt;100% confidence only</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-grid fade-in" style="margin-top:2rem;">
+        <div class="card">
+            <h3>Patient-Wise Splitting</h3>
+            <p>Train, validation, and test sets have zero patient overlap &mdash; preventing data leakage and ensuring realistic performance estimates.</p>
+        </div>
+        <div class="card">
+            <h3>Shared Evaluation Sets</h3>
+            <p>Validation (1,234 records) and test (1,253 records) sets are identical across all variants for fair, controlled comparison.</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- ARCHITECTURES -->
+<section id="architectures">
+    <div class="section-label">Model Architectures</div>
+    <h2 class="section-title">Two Architectures, Same Conclusion</h2>
+    <p class="section-desc">
+        We compare a conventional hybrid architecture with a modern state space model to show our findings generalize across model families.
+    </p>
+    <div class="arch-grid fade-in">
+        <div class="arch-card cnn">
+            <h3>CNN-LSTM Hybrid</h3>
+            <p class="arch-detail"><strong>Type:</strong> Convolutional + Recurrent</p>
+            <p class="arch-detail"><strong>Parameters:</strong> ~367K trainable</p>
+            <p class="arch-detail"><strong>Framework:</strong> PyTorch</p>
+            <p class="arch-detail"><strong>XAI Method:</strong> Grad-CAM</p>
+            <div class="arch-specs">
+                <code>Input: (batch, 1000, 12)</code><br>
+                <code>3&times; Conv1D &rarr; BiLSTM &rarr; FC &rarr; Sigmoid</code>
+            </div>
+        </div>
+        <div class="arch-card mamba">
+            <h3>Bidirectional Mamba-2</h3>
+            <p class="arch-detail"><strong>Type:</strong> State Space Model (SSM)</p>
+            <p class="arch-detail"><strong>Advantage:</strong> Linear complexity O(n)</p>
+            <p class="arch-detail"><strong>Framework:</strong> PyTorch</p>
+            <p class="arch-detail"><strong>XAI Method:</strong> Integrated Gradients (Captum)</p>
+            <div class="arch-specs">
+                <code>Input: (batch, 1000, 12)</code><br>
+                <code>BiMamba-2 blocks &rarr; Classifier &rarr; Sigmoid</code>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- RESULTS -->
+<section id="results">
+    <div class="section-label">Key Results</div>
+    <h2 class="section-title">Label Quality Wins &mdash; Consistently</h2>
+    <p class="section-desc">
+        Across both architectures, Dataset A (highest label certainty) achieves the best discrimination, calibration, and interpretability.
+    </p>
+
+    <div class="result-highlight fade-in">
+        <h3>Consistent Ranking Across Both Architectures</h3>
+        <div class="ranking">
+            <span class="a">Dataset A</span><span class="gt">&gt;</span><span class="c">Dataset C</span><span class="gt">&gt;</span><span class="d">Dataset D</span>
+        </div>
+        <p>AUROC &bull; Accuracy &bull; Calibration (ECE) &bull; Brier Score &bull; Clinical Interpretability</p>
+    </div>
+
+    <div class="table-wrap fade-in" style="margin-bottom:2rem;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>CNN-LSTM (Dataset A)</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>ROC-AUC</strong></td><td style="color:var(--green);font-weight:700;">99.06%</td><td>Near-perfect discrimination</td></tr>
+                <tr><td><strong>Accuracy</strong></td><td>95.87%</td><td>Overall correctness</td></tr>
+                <tr><td><strong>Recall</strong></td><td>93.31%</td><td>MI detection sensitivity</td></tr>
+                <tr><td><strong>Precision</strong></td><td>88.76%</td><td>False alarm rate control</td></tr>
+                <tr><td><strong>F1-Score</strong></td><td>90.98%</td><td>Balanced performance</td></tr>
+                <tr><td><strong>Specificity</strong></td><td>96.60%</td><td>Normal case identification</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-grid fade-in">
+        <div class="card">
+            <h3>Calibration Matters</h3>
+            <p>Dataset D showed significantly degraded ECE (Expected Calibration Error) on Mamba-2 &mdash; uncertain labels harm not just accuracy but model <strong>trustworthiness</strong>.</p>
+        </div>
+        <div class="card">
+            <h3>Model Mirrors Human Uncertainty</h3>
+            <p>When cardiologists expressed lower diagnostic confidence, model prediction confidence dropped proportionally &mdash; clinically valuable for flagging ambiguous cases.</p>
+        </div>
+        <div class="card">
+            <h3>XAI Validates Clinical Relevance</h3>
+            <p>Dataset A models focus on V1&ndash;V4 for anterior MI and II/III/aVF for inferior MI. Dataset D models show diffuse, non-specific activations &mdash; losing interpretability.</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- TEAM -->
+<section id="team">
+    <div class="section-label">Team</div>
+    <h2 class="section-title">Who We Are</h2>
+    <p class="section-desc">
+        Computer Engineering undergraduates at the University of Peradeniya, Sri Lanka.
+    </p>
+    <div class="team-grid fade-in">
+        <div class="team-card">
+            <div class="team-avatar">CR</div>
+            <h3>Chamath Rupasinghe</h3>
+            <div class="reg">E/20/342</div>
+            <div class="role">CNN-LSTM &bull; Dataset Design &bull; XAI</div>
+        </div>
+        <div class="team-card">
+            <div class="team-avatar">MR</div>
+            <h3>M.L. De Croos Rubin</h3>
+            <div class="reg">E/20/054</div>
+            <div class="role">Bidirectional Mamba-2</div>
+        </div>
+        <div class="team-card">
+            <div class="team-avatar">NP</div>
+            <h3>S.M.N.N. Padeniya</h3>
+            <div class="reg">E/20/276</div>
+            <div class="role">Evaluation &bull; Calibration Analysis</div>
+        </div>
+    </div>
+    <div class="supervisor-row fade-in">
+        <div class="supervisor-tag"><strong>Dr. Isuru Nawinne</strong> &mdash; Supervisor</div>
+        <div class="supervisor-tag"><strong>Dr. Isuri Devindi</strong> &mdash; Co-supervisor</div>
+        <div class="supervisor-tag"><strong>Dr. J&oslash;rgen Kanters</strong> &mdash; Clinical Advisor</div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p>
+        &copy; 2026 &mdash; Department of Computer Engineering, University of Peradeniya
+        <br>
+        <a href="https://github.com/cepdnaclk/e20-co542-Quality-Over-Quantity-The-Impact-of-Diagnostic-Certainty" target="_blank">GitHub Repository</a>
+        &nbsp;&bull;&nbsp;
+        PTB-XL Dataset &copy; PhysioNet
+    </p>
+</footer>
+
+<!-- SCROLL ANIMATIONS -->
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Smooth scroll
+    document.querySelectorAll('nav a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            const t = document.querySelector(a.getAttribute('href'));
+            if (t) { t.scrollIntoView({ behavior: 'smooth' }); document.querySelector('nav ul').classList.remove('open'); }
+        });
+    });
+</script>
+
+</body>
+</html>
