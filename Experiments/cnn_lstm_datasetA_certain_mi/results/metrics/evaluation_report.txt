@@ -1,0 +1,48 @@
+CNN-LSTM Evaluation Report - Dataset A
+============================================================
+
+OVERALL TEST SET PERFORMANCE
+------------------------------------------------------------
+ACCURACY       : 0.9681
+PRECISION      : 0.9438
+RECALL         : 0.9403
+F1             : 0.9421
+ROC_AUC        : 0.9933
+SPECIFICITY    : 0.9787
+NPV            : 0.9773
+PPV            : 0.9438
+
+
+GROUP-WISE PERFORMANCE
+------------------------------------------------------------
+
+CERTAIN_MI (n=268):
+  accuracy       : 0.9681
+  precision      : 0.9438
+  recall         : 0.9403
+  f1             : 0.9421
+  roc_auc        : 0.9933
+  specificity    : 0.9787
+  npv            : 0.9773
+  ppv            : 0.9438
+  n_samples      : 268.0000
+  n_normal       : 703.0000
+
+PURE_NORMAL (n=703):
+  accuracy       : 0.9787
+  specificity    : 0.9787
+  n_samples      : 703.0000
+  true_negatives : 688.0000
+  false_positives: 15.0000
+
+
+CLASSIFICATION REPORT
+------------------------------------------------------------
+              precision    recall  f1-score   support
+
+      Normal       0.98      0.98      0.98       703
+          MI       0.94      0.94      0.94       268
+
+    accuracy                           0.97       971
+   macro avg       0.96      0.96      0.96       971
+weighted avg       0.97      0.97      0.97       971

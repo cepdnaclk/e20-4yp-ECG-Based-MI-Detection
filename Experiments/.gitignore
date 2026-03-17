@@ -1,0 +1,17 @@
+*.pt
+*.pth
+*.npy
+*_ORIGINAL_MIXED/
+*_ValTest_Mixed/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Virtual environments
+venv/
+env/
+.env

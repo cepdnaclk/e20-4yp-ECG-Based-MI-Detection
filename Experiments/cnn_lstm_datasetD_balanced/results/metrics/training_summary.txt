@@ -1,0 +1,17 @@
+CNN-LSTM Training Summary - Dataset A
+============================================================
+
+Training Date: 2026-02-14 03:46:16
+Total Training Time: 0.75 minutes
+Total Epochs: 39
+
+Best Validation Metrics:
+  Loss: 0.1273
+  AUC: 0.9924
+
+Final Validation Metrics:
+  Loss: 0.1435
+  Accuracy: 0.9570
+  AUC: 0.9915
+
+Model Parameters: 367,169

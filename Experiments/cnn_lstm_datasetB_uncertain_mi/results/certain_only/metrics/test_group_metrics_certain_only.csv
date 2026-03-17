@@ -1,0 +1,3 @@
+group,n,recall_or_specificity,tp_or_tn,fn_or_fp
+certain_mi,268,0.9626865671641791,258,10
+pure_normal,703,0.9402560455192034,661,42

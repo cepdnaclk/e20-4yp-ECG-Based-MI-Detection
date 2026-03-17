@@ -1,0 +1,526 @@
+"""
+Calibration Analysis: AUPRC and Calibration Plots
+Analyzes prediction calibration for Datasets A, C, and D
+(Certain-only test set evaluation)
+"""
+
+import sys
+sys.path.append('.')
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import (
+    precision_recall_curve, 
+    average_precision_score,
+    brier_score_loss,
+    roc_auc_score
+)
+from sklearn.calibration import calibration_curve
+import warnings
+warnings.filterwarnings('ignore')
+
+# Set style
+plt.style.use('seaborn-v0_8-darkgrid')
+sns.set_palette("husl")
+
+# ==========================================
+# HELPER FUNCTIONS
+# ==========================================
+
+def compute_ece(y_true, y_pred_proba, n_bins=10):
+    """
+    Compute Expected Calibration Error (ECE)
+    
+    Args:
+        y_true: True labels
+        y_pred_proba: Predicted probabilities
+        n_bins: Number of bins for calibration
+    
+    Returns:
+        ECE score
+    """
+    bin_boundaries = np.linspace(0, 1, n_bins + 1)
+    bin_lowers = bin_boundaries[:-1]
+    bin_uppers = bin_boundaries[1:]
+    
+    ece = 0.0
+    for bin_lower, bin_upper in zip(bin_lowers, bin_uppers):
+        in_bin = (y_pred_proba >= bin_lower) & (y_pred_proba < bin_upper)
+        prop_in_bin = in_bin.mean()
+        
+        if prop_in_bin > 0:
+            accuracy_in_bin = y_true[in_bin].mean()
+            avg_confidence_in_bin = y_pred_proba[in_bin].mean()
+            ece += np.abs(avg_confidence_in_bin - accuracy_in_bin) * prop_in_bin
+    
+    return ece
+
+def load_dataset_predictions(dataset_name):
+    """
+    Load predictions for a specific dataset
+    
+    Args:
+        dataset_name: 'A', 'C', or 'D'
+    
+    Returns:
+        y_true, y_pred, y_proba, groups
+    """
+    if dataset_name == 'A':
+        path = '../cnn_lstm_datasetA_certain_mi/results/metrics/test_predictions.csv'
+    elif dataset_name == 'C':
+        path = '../cnn_lstm_datasetC_all_mi/results/metrics/test_predictions.csv'
+    elif dataset_name == 'D':
+        path = '../cnn_lstm_datasetD_balanced/results/metrics/test_predictions.csv'
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
+    
+    df = pd.read_csv(path)
+    return df['y_true'].values, df['y_pred'].values, df['y_prob'].values, df['group'].values
+
+# ==========================================
+# PLOTTING FUNCTIONS
+# ==========================================
+
+def plot_precision_recall_curve(datasets_dict, save_path):
+    """
+    Plot Precision-Recall curves for all datasets
+    
+    Args:
+        datasets_dict: Dict with dataset names as keys and (y_true, y_proba) as values
+        save_path: Path to save figure
+    """
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    colors = {'A': '#e74c3c', 'C': '#3498db', 'D': '#2ecc71'}
+    labels = {'A': 'Dataset A (Certain MI)', 'C': 'Dataset C (All MI)', 'D': 'Dataset D (Balanced)'}
+    
+    for dataset_name, (y_true, y_proba) in datasets_dict.items():
+        precision, recall, _ = precision_recall_curve(y_true, y_proba)
+        ap_score = average_precision_score(y_true, y_proba)
+        
+        ax.plot(recall, precision, 
+               label=f'{labels[dataset_name]} (AUPRC = {ap_score:.4f})',
+               linewidth=2.5, color=colors[dataset_name])
+    
+    # Baseline (random classifier)
+    baseline = np.sum(datasets_dict['A'][0]) / len(datasets_dict['A'][0])
+    ax.plot([0, 1], [baseline, baseline], 
+           'k--', label=f'Random Classifier (AP = {baseline:.4f})', linewidth=2)
+    
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('Recall (Sensitivity)', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Precision (PPV)', fontsize=12, fontweight='bold')
+    ax.set_title('Precision-Recall Curves: Dataset A vs C vs D', 
+                fontsize=14, fontweight='bold')
+    ax.legend(loc='lower left', fontsize=10)
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✅ Saved: {save_path}")
+    plt.close()
+
+def plot_calibration_curve(datasets_dict, save_path, n_bins=10):
+    """
+    Plot calibration curves for all datasets
+    
+    Args:
+        datasets_dict: Dict with dataset names as keys and (y_true, y_proba) as values
+        save_path: Path to save figure
+        n_bins: Number of bins for calibration
+    """
+    fig, ax = plt.subplots(figsize=(10, 8))
+    
+    colors = {'A': '#e74c3c', 'C': '#3498db', 'D': '#2ecc71'}
+    labels = {'A': 'Dataset A (Certain)', 'C': 'Dataset C (All MI)', 'D': 'Dataset D (Balanced)'}
+    
+    for dataset_name, (y_true, y_proba) in datasets_dict.items():
+        fraction_of_positives, mean_predicted_value = calibration_curve(
+            y_true, y_proba, n_bins=n_bins, strategy='uniform'
+        )
+        
+        ax.plot(mean_predicted_value, fraction_of_positives, 
+               marker='o', linewidth=2.5, markersize=8,
+               label=labels[dataset_name],
+               color=colors[dataset_name])
+    
+    # Perfect calibration line
+    ax.plot([0, 1], [0, 1], 'k--', linewidth=2, label='Perfect Calibration')
+    
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.0])
+    ax.set_xlabel('Mean Predicted Probability', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Fraction of Positives (Actual MI Rate)', fontsize=12, fontweight='bold')
+    ax.set_title('Calibration Curves: Dataset A vs C vs D', 
+                fontsize=14, fontweight='bold')
+    ax.legend(loc='upper left', fontsize=11)
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✅ Saved: {save_path}")
+    plt.close()
+
+def plot_reliability_diagram(datasets_dict, save_path, n_bins=10):
+    """
+    Plot reliability diagram (histogram + calibration)
+    
+    Args:
+        datasets_dict: Dict with dataset names as keys and (y_true, y_proba) as values
+        save_path: Path to save figure
+        n_bins: Number of bins
+    """
+    fig, axes = plt.subplots(3, 2, figsize=(14, 15))
+    
+    colors = {'A': '#e74c3c', 'C': '#3498db', 'D': '#2ecc71'}
+    titles = {
+        'A': 'Dataset A (Certain MI Only)', 
+        'C': 'Dataset C (All MI)', 
+        'D': 'Dataset D (Balanced)'
+    }
+    
+    for idx, (dataset_name, (y_true, y_proba)) in enumerate(datasets_dict.items()):
+        # Calibration curve
+        ax1 = axes[idx, 0]
+        fraction_of_positives, mean_predicted_value = calibration_curve(
+            y_true, y_proba, n_bins=n_bins, strategy='uniform'
+        )
+        
+        ax1.plot(mean_predicted_value, fraction_of_positives, 
+                marker='o', linewidth=2.5, markersize=10,
+                color=colors[dataset_name], label='Model')
+        ax1.plot([0, 1], [0, 1], 'k--', linewidth=2, label='Perfect')
+        
+        ax1.set_xlim([0.0, 1.0])
+        ax1.set_ylim([0.0, 1.0])
+        ax1.set_xlabel('Mean Predicted Probability', fontsize=11)
+        ax1.set_ylabel('Fraction of Positives', fontsize=11)
+        ax1.set_title(f'{titles[dataset_name]} - Calibration', fontsize=12, fontweight='bold')
+        ax1.legend(loc='upper left')
+        ax1.grid(True, alpha=0.3)
+        
+        # Histogram of predictions
+        ax2 = axes[idx, 1]
+        ax2.hist(y_proba[y_true == 0], bins=20, alpha=0.5, label='Normal', color='green', edgecolor='black')
+        ax2.hist(y_proba[y_true == 1], bins=20, alpha=0.5, label='MI', color='red', edgecolor='black')
+        ax2.set_xlabel('Predicted Probability', fontsize=11)
+        ax2.set_ylabel('Count', fontsize=11)
+        ax2.set_title(f'{titles[dataset_name]} - Prediction Distribution', fontsize=12, fontweight='bold')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3, axis='y')
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✅ Saved: {save_path}")
+    plt.close()
+
+def plot_decile_calibration(datasets_dict, save_path):
+    """
+    Plot decile-based calibration (medical standard)
+    
+    Args:
+        datasets_dict: Dict with dataset names as keys and (y_true, y_proba) as values
+        save_path: Path to save figure
+    """
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    
+    colors = {'A': '#e74c3c', 'C': '#3498db', 'D': '#2ecc71'}
+    titles = {
+        'A': 'Dataset A (Certain MI)', 
+        'C': 'Dataset C (All MI)', 
+        'D': 'Dataset D (Balanced)'
+    }
+    
+    for idx, (dataset_name, (y_true, y_proba)) in enumerate(datasets_dict.items()):
+        ax = axes[idx]
+        
+        # Create deciles
+        deciles = pd.qcut(y_proba, q=10, duplicates='drop', labels=False)
+        
+        decile_stats = []
+        for decile in range(deciles.max() + 1):
+            mask = deciles == decile
+            if mask.sum() > 0:
+                mean_pred = y_proba[mask].mean()
+                mean_actual = y_true[mask].mean()
+                count = mask.sum()
+                decile_stats.append({
+                    'decile': decile + 1,
+                    'mean_pred': mean_pred,
+                    'mean_actual': mean_actual,
+                    'count': count
+                })
+        
+        decile_df = pd.DataFrame(decile_stats)
+        
+        # Plot
+        ax.scatter(decile_df['mean_pred'], decile_df['mean_actual'], 
+                  s=decile_df['count']*2, alpha=0.6, color=colors[dataset_name], 
+                  edgecolors='black', linewidths=1.5)
+        ax.plot([0, 1], [0, 1], 'k--', linewidth=2, label='Perfect Calibration')
+        
+        # Add decile numbers
+        for _, row in decile_df.iterrows():
+            ax.annotate(f"{int(row['decile'])}", 
+                       (row['mean_pred'], row['mean_actual']),
+                       fontsize=9, fontweight='bold', ha='center', va='center')
+        
+        ax.set_xlim([0.0, 1.0])
+        ax.set_ylim([0.0, 1.0])
+        ax.set_xlabel('Mean Predicted Probability', fontsize=11, fontweight='bold')
+        ax.set_ylabel('Observed MI Rate', fontsize=11, fontweight='bold')
+        ax.set_title(f'{titles[dataset_name]}\nDecile-Based Calibration', 
+                    fontsize=12, fontweight='bold')
+        ax.legend(loc='upper left')
+        ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✅ Saved: {save_path}")
+    plt.close()
+
+def plot_calibration_comparison_bar(results_df, save_path):
+    """
+    Create bar chart comparing calibration metrics across datasets
+    
+    Args:
+        results_df: DataFrame with calibration metrics
+        save_path: Path to save figure
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    
+    metrics = ['AUPRC', 'ROC-AUC', 'Brier Score', 'ECE']
+    colors = {'A': '#e74c3c', 'C': '#3498db', 'D': '#2ecc71'}
+    
+    for idx, metric in enumerate(metrics):
+        ax = axes[idx // 2, idx % 2]
+        
+        datasets = results_df['Dataset'].values
+        values = results_df[metric].values
+        
+        bars = ax.bar(datasets, values, color=[colors[d] for d in datasets], 
+                     alpha=0.7, edgecolor='black', linewidth=2)
+        
+        # Add value labels
+        for bar, val in zip(bars, values):
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height,
+                   f'{val:.4f}',
+                   ha='center', va='bottom', fontsize=11, fontweight='bold')
+        
+        # Styling
+        ax.set_ylabel(metric, fontsize=12, fontweight='bold')
+        ax.set_xlabel('Dataset', fontsize=12, fontweight='bold')
+        
+        # Add note for Brier and ECE (lower is better)
+        if metric in ['Brier Score', 'ECE']:
+            ax.set_title(f'{metric} (Lower is Better)', fontsize=13, fontweight='bold')
+            # Highlight best (minimum)
+            best_idx = values.argmin()
+            bars[best_idx].set_edgecolor('gold')
+            bars[best_idx].set_linewidth(4)
+        else:
+            ax.set_title(f'{metric} (Higher is Better)', fontsize=13, fontweight='bold')
+            # Highlight best (maximum)
+            best_idx = values.argmax()
+            bars[best_idx].set_edgecolor('gold')
+            bars[best_idx].set_linewidth(4)
+        
+        ax.grid(True, alpha=0.3, axis='y')
+        ax.set_ylim([0, max(values) * 1.15])
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    print(f"✅ Saved: {save_path}")
+    plt.close()
+
+# ==========================================
+# MAIN ANALYSIS
+# ==========================================
+
+def main():
+    print(f"\n{'='*70}")
+    print("CALIBRATION ANALYSIS: AUPRC & CALIBRATION PLOTS")
+    print("Three-Way Comparison: A vs C vs D")
+    print("Certain-Only Test Set Evaluation")
+    print(f"{'='*70}")
+    
+    # ==========================================
+    # 1. LOAD ALL DATASETS
+    # ==========================================
+    
+    print("\n[Step 1] Loading predictions from datasets A, C, and D...")
+    
+    datasets = {}
+    for dataset_name in ['A', 'C', 'D']:
+        try:
+            y_true, y_pred, y_proba, groups = load_dataset_predictions(dataset_name)
+            datasets[dataset_name] = (y_true, y_proba)
+            print(f"✅ Dataset {dataset_name}: {len(y_true)} samples")
+        except FileNotFoundError:
+            print(f"⚠️  Dataset {dataset_name}: predictions file not found (skipping)")
+    
+    if len(datasets) == 0:
+        print("\n❌ No datasets found! Please run evaluation first.")
+        return
+    
+    # ==========================================
+    # 2. COMPUTE METRICS
+    # ==========================================
+    
+    print(f"\n{'='*70}")
+    print("[Step 2] Computing calibration metrics...")
+    print(f"{'='*70}")
+    
+    results = []
+    
+    for dataset_name, (y_true, y_proba) in datasets.items():
+        # AUPRC
+        ap_score = average_precision_score(y_true, y_proba)
+        
+        # Brier Score (lower is better)
+        brier = brier_score_loss(y_true, y_proba)
+        
+        # ECE (lower is better)
+        ece = compute_ece(y_true, y_proba, n_bins=10)
+        
+        # ROC-AUC for reference
+        roc_auc = roc_auc_score(y_true, y_proba)
+        
+        results.append({
+            'Dataset': dataset_name,
+            'AUPRC': ap_score,
+            'ROC-AUC': roc_auc,
+            'Brier Score': brier,
+            'ECE': ece
+        })
+        
+        print(f"\nDataset {dataset_name}:")
+        print(f"  AUPRC:       {ap_score:.4f}")
+        print(f"  ROC-AUC:     {roc_auc:.4f}")
+        print(f"  Brier Score: {brier:.4f} (lower is better)")
+        print(f"  ECE:         {ece:.4f} (lower is better)")
+    
+    # ==========================================
+    # 3. CREATE RESULTS TABLE
+    # ==========================================
+    
+    results_df = pd.DataFrame(results)
+    
+    print(f"\n{'='*70}")
+    print("SUMMARY TABLE")
+    print(f"{'='*70}")
+    print(results_df.to_string(index=False))
+    
+    # Save results
+    results_df.to_csv('calibration_metrics_A_vs_C_vs_D.csv', index=False)
+    print(f"\n✅ Saved: calibration_metrics_A_vs_C_vs_D.csv")
+    
+    # ==========================================
+    # 4. GENERATE PLOTS
+    # ==========================================
+    
+    print(f"\n{'='*70}")
+    print("[Step 3] Generating visualizations...")
+    print(f"{'='*70}\n")
+    
+    # Precision-Recall Curves
+    plot_precision_recall_curve(datasets, 'precision_recall_curves_A_vs_C_vs_D.png')
+    
+    # Calibration Curves
+    plot_calibration_curve(datasets, 'calibration_curves_A_vs_C_vs_D.png', n_bins=10)
+    
+    # Reliability Diagrams
+    plot_reliability_diagram(datasets, 'reliability_diagrams_A_vs_C_vs_D.png', n_bins=10)
+    
+    # Decile Calibration
+    plot_decile_calibration(datasets, 'decile_calibration_A_vs_C_vs_D.png')
+    
+    # Calibration Comparison Bar Chart
+    plot_calibration_comparison_bar(results_df, 'calibration_comparison_bar_chart.png')
+    
+    # ==========================================
+    # 5. INTERPRETATION
+    # ==========================================
+    
+    print(f"\n{'='*70}")
+    print("INTERPRETATION")
+    print(f"{'='*70}")
+    
+    # Find best dataset for each metric
+    best_auprc = results_df.loc[results_df['AUPRC'].idxmax(), 'Dataset']
+    best_brier = results_df.loc[results_df['Brier Score'].idxmin(), 'Dataset']
+    best_ece = results_df.loc[results_df['ECE'].idxmin(), 'Dataset']
+    best_roc = results_df.loc[results_df['ROC-AUC'].idxmax(), 'Dataset']
+    
+    print(f"\n🏆 Best Performance:")
+    print(f"  Best AUPRC (Precision-Recall):  Dataset {best_auprc}")
+    print(f"  Best ROC-AUC (Discrimination):   Dataset {best_roc}")
+    print(f"  Best Brier Score (Calibration): Dataset {best_brier}")
+    print(f"  Best ECE (Calibration):         Dataset {best_ece}")
+    
+    # Compute relative improvements
+    if len(results_df) >= 2:
+        print(f"\n📊 Calibration Quality Comparison:")
+        
+        # Get metrics for each dataset
+        metrics_dict = {}
+        for _, row in results_df.iterrows():
+            metrics_dict[row['Dataset']] = {
+                'ECE': row['ECE'],
+                'Brier': row['Brier Score'],
+                'AUPRC': row['AUPRC']
+            }
+        
+        # Compare A vs C
+        if 'A' in metrics_dict and 'C' in metrics_dict:
+            ece_improvement = ((metrics_dict['C']['ECE'] - metrics_dict['A']['ECE']) / metrics_dict['C']['ECE']) * 100
+            brier_improvement = ((metrics_dict['C']['Brier'] - metrics_dict['A']['Brier']) / metrics_dict['C']['Brier']) * 100
+            print(f"\n  Dataset A vs C:")
+            print(f"    ECE improvement:   {ece_improvement:+.1f}% (A is better)" if ece_improvement > 0 else f"    ECE improvement:   {ece_improvement:+.1f}% (C is better)")
+            print(f"    Brier improvement: {brier_improvement:+.1f}% (A is better)" if brier_improvement > 0 else f"    Brier improvement: {brier_improvement:+.1f}% (C is better)")
+        
+        # Compare A vs D
+        if 'A' in metrics_dict and 'D' in metrics_dict:
+            ece_improvement = ((metrics_dict['D']['ECE'] - metrics_dict['A']['ECE']) / metrics_dict['D']['ECE']) * 100
+            brier_improvement = ((metrics_dict['D']['Brier'] - metrics_dict['A']['Brier']) / metrics_dict['D']['Brier']) * 100
+            print(f"\n  Dataset A vs D:")
+            print(f"    ECE improvement:   {ece_improvement:+.1f}% (A is better)" if ece_improvement > 0 else f"    ECE improvement:   {ece_improvement:+.1f}% (D is better)")
+            print(f"    Brier improvement: {brier_improvement:+.1f}% (A is better)" if brier_improvement > 0 else f"    Brier improvement: {brier_improvement:+.1f}% (D is better)")
+        
+        # Compare C vs D
+        if 'C' in metrics_dict and 'D' in metrics_dict:
+            ece_improvement = ((metrics_dict['D']['ECE'] - metrics_dict['C']['ECE']) / metrics_dict['D']['ECE']) * 100
+            brier_improvement = ((metrics_dict['D']['Brier'] - metrics_dict['C']['Brier']) / metrics_dict['D']['Brier']) * 100
+            print(f"\n  Dataset C vs D:")
+            print(f"    ECE improvement:   {ece_improvement:+.1f}% (C is better)" if ece_improvement > 0 else f"    ECE improvement:   {ece_improvement:+.1f}% (D is better)")
+            print(f"    Brier improvement: {brier_improvement:+.1f}% (C is better)" if brier_improvement > 0 else f"    Brier improvement: {brier_improvement:+.1f}% (D is better)")
+    
+    print(f"\n💡 Calibration Insights:")
+    print(f"  - AUPRC measures overall precision-recall trade-off")
+    print(f"  - Brier Score measures probability accuracy")
+    print(f"  - ECE measures calibration error across probability bins")
+    print(f"  - Lower Brier & ECE = Better calibrated probabilities")
+    
+    print(f"\n📊 Clinical Relevance:")
+    print(f"  - Well-calibrated model → Clinicians can trust probabilities")
+    print(f"  - If model says '80% MI risk', ~80% should actually have MI")
+    print(f"  - Poor calibration → Model overconfident or underconfident")
+    
+    print(f"\n{'='*70}")
+    print("ANALYSIS COMPLETE!")
+    print(f"{'='*70}")
+    print(f"\n📁 Files Generated:")
+    print(f"  • calibration_metrics_A_vs_C_vs_D.csv")
+    print(f"  • precision_recall_curves_A_vs_C_vs_D.png")
+    print(f"  • calibration_curves_A_vs_C_vs_D.png")
+    print(f"  • reliability_diagrams_A_vs_C_vs_D.png")
+    print(f"  • decile_calibration_A_vs_C_vs_D.png")
+    print(f"  • calibration_comparison_bar_chart.png")
+    print(f"\n{'='*70}\n")
+
+if __name__ == "__main__":
+    main()

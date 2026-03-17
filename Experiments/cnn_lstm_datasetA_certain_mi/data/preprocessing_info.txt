@@ -1,0 +1,8 @@
+train_csv: ../../csvs/ptbxl_datasetA_train.csv
+val_csv: ../../csvs/ptbxl_dataset_val_certain_vs_normal.csv
+test_csv: ../../csvs/ptbxl_dataset_test_certain_vs_normal.csv
+n_train: 5645
+n_val: 977
+n_test: 971
+class_weights: {0: np.float64(0.6341271624354078), 1: np.float64(2.363902847571189)}
+preprocessing_steps: ['1. Load ECG signals from PTB-XL (100 Hz)', '2. Remove baseline wander (0.5 Hz high-pass filter)', '3. Lead-wise Z-score normalization (fit on train only)', '4. Save as .npy arrays']
