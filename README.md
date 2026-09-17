@@ -272,11 +272,11 @@ python xai/integrated_gradients/run_ig.py --model mamba2 --dataset A
 
 ### Supervisors
 
-- **Dr. Isuru Nawinne** — Department of Computer Engineering, University of Peradeniya
+- **Dr. Isuru Nawinne** - Department of Computer Engineering, University of Peradeniya
 - **Prof. Roshan Ragel** - Department of Computer Engineering, University of Peradeniya
-- **Dr. Vajira Thambawita** — Simula Research Laboratory, Norway
-- **Ms. Isuri Devindi** — Department of Computer Engineering, University of Peradeniya
-- **Dr. Jørgen Kanters** — Cardiologist (Clinical Advisor)
+- **Dr. Vajira Thambawita** - Simula Research Laboratory, Norway
+- **Ms. Isuri Devindi** - Department of Computer Engineering, University of Peradeniya
+- **Dr. Jørgen Kanters** - Cardiologist (Clinical Advisor)
 - **Dr. Mary M. Maleckar** - Tulane University School of Medicine, USA; Simula Research Laboratory, Norway
 
 ---
