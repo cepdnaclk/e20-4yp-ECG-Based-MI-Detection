@@ -276,7 +276,7 @@ python xai/integrated_gradients/run_ig.py --model mamba2 --dataset A
 - **Prof. Roshan Ragel** - Department of Computer Engineering, University of Peradeniya
 - **Dr. Vajira Thambawita** - Simula Research Laboratory, Norway
 - **Ms. Isuri Devindi** - University of Maryland, College Park, USA
-- **Dr. Jørgen Kanters** - Cardiologist (Clinical Advisor)
+- **Dr. Jørgen Kanters** - University of Copenhagen, Denmark
 - **Dr. Mary M. Maleckar** - Tulane University School of Medicine, USA; Simula Research Laboratory, Norway
 
 ---
