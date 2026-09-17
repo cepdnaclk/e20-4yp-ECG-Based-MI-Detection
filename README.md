@@ -295,11 +295,13 @@ python xai/integrated_gradients/run_ig.py --model mamba2 --dataset A
 If you use this work, please cite:
 
 ```bibtex
-@misc{rupasinghe2026qualityoverquantity,
+@misc{decroos2026qualityoverquantity,
   title={Quality Over Quantity: The Impact of Diagnostic Certainty of Data in Deep Learning for ECG Analysis},
-  author={Rupasinghe, Chamath and De Croos Rubin, M.L. and Padeniya, S.M.N.N.},
+  author={De Croos, Mineth and Padeniya, Nisitha and Rupasinghe, Chamath and Devindi, Isuri and Maleckar, Mary M. and Ragel, Roshan and Kanters, J{\o}rgen K. and Nawinne, Isuru and Thambawita, Vajira},
   year={2026},
-  institution={University of Peradeniya}
+  institution={University of Peradeniya},
+  howpublished={\url{https://github.com/cepdnaclk/e20-4yp-ECG-Based-MI-Detection}}
+}
 }
 ```
 
