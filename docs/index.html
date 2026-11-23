@@ -85,6 +85,8 @@
         .tag-yellow{background:rgba(241,196,15,0.12);color:var(--yellow);}
         .tag-blue{background:rgba(52,152,219,0.12);color:var(--blue);}
         .tag-red{background:var(--accent-soft);color:var(--accent);}
+        .best{color:var(--green);font-weight:700;}
+        .table-note{font-size:0.8rem;color:var(--text-dim);margin-top:0.75rem;}
 
         /* ARCHITECTURE */
         .arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
@@ -107,6 +109,15 @@
         .ranking .gt{color:var(--text-dim);margin:0 0.4rem;}
         .ranking .c{color:var(--yellow);}
         .ranking .d{color:var(--accent);}
+
+        /* PUBLICATION */
+        .pub-card{background:var(--bg-card);border:1px solid var(--border-accent);border-radius:12px;padding:2rem;margin-bottom:1.5rem;}
+        .pub-venue{font-size:0.75rem;font-weight:700;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.6rem;}
+        .pub-card h3{font-family:'DM Serif Display',serif;font-size:1.4rem;line-height:1.3;margin-bottom:0.8rem;}
+        .pub-authors{font-size:0.92rem;color:var(--text);margin-bottom:0.4rem;}
+        .pub-affil{font-size:0.82rem;color:var(--text-muted);margin-bottom:1.5rem;}
+        .bibtex{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--text-muted);background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:1.2rem;overflow-x:auto;white-space:pre;line-height:1.6;}
+        .ack{font-size:0.82rem;color:var(--text-dim);margin-top:1.5rem;}
 
         /* TEAM */
         .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
@@ -152,21 +163,23 @@
         <li><a href="#datasets">Datasets</a></li>
         <li><a href="#architectures">Models</a></li>
         <li><a href="#results">Results</a></li>
+        <li><a href="#publication">Publication</a></li>
         <li><a href="#team">Team</a></li>
-        <li><a href="https://github.com/cepdnaclk/e20-co542-Quality-Over-Quantity-The-Impact-of-Diagnostic-Certainty" target="_blank">GitHub</a></li>
+        <li><a href="https://github.com/cepdnaclk/e20-4yp-ECG-Based-MI-Detection" target="_blank">GitHub</a></li>
     </ul>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
     <div class="badge">Final Year Project &bull; University of Peradeniya</div>
-    <h1>Quality Over Quantity:<br>The Impact of <em>Diagnostic Certainty</em> in Deep Learning for ECG Analysis</h1>
+    <h1>Quality Over Quantity:<br>The Impact of <em>Diagnostic Certainty</em> of Data in Deep Learning for ECG Analysis</h1>
     <p class="hero-sub">
-        We show that high-confidence, cardiologist-validated ECG labels produce more accurate, better-calibrated, and clinically interpretable deep learning models than larger but noisier datasets &mdash; across two architectures.
+        We show that training on high-certainty, cardiologist-validated ECG labels produces better-calibrated and more clinically interpretable myocardial infarction (MI) detection models than adding larger amounts of uncertain labels &mdash; across two architectures.
     </p>
     <div class="hero-actions">
         <a href="#results" class="btn btn-primary">View Results &darr;</a>
-        <a href="https://github.com/cepdnaclk/e20-co542-Quality-Over-Quantity-The-Impact-of-Diagnostic-Certainty" target="_blank" class="btn btn-outline">
+        <a href="#publication" class="btn btn-outline">Publication</a>
+        <a href="https://github.com/cepdnaclk/e20-4yp-ECG-Based-MI-Detection" target="_blank" class="btn btn-outline">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.39.6.11.82-.26.82-.58v-2.17c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23a11.5 11.5 0 016.02 0c2.28-1.55 3.28-1.23 3.28-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.82.58A12.01 12.01 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
             GitHub Repo
         </a>
@@ -180,41 +193,46 @@
     <div class="section-label">About the Project</div>
     <h2 class="section-title">Why Label Quality Matters</h2>
     <p class="section-desc">
-        Most medical AI research focuses on collecting more data. We ask a different question: <strong>does the certainty of diagnostic labels matter more than dataset size?</strong>
+        Most ECG deep learning studies report accuracy and AUROC but rarely ask whether a model's predicted probability of MI can be trusted. We ask: <strong>does the diagnostic certainty of training labels matter more than dataset size?</strong>
     </p>
     <div class="stats fade-in">
         <div class="stat-card">
-            <div class="stat-value">12</div>
-            <div class="stat-label">ECG Leads</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">7,593</div>
-            <div class="stat-label">Filtered ECGs</div>
+            <div class="stat-value">9,325</div>
+            <div class="stat-label">Human-Validated ECGs</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">2</div>
             <div class="stat-label">Architectures</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">3</div>
-            <div class="stat-label">Dataset Variants</div>
+            <div class="stat-value">4</div>
+            <div class="stat-label">Training Variants</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">0.0184</div>
+            <div class="stat-label">Best ECE (Certain Labels)</div>
         </div>
     </div>
     <div class="card-grid fade-in">
         <div class="card">
             <div class="card-icon" style="background:var(--accent-soft);">&#9829;</div>
             <h3>Binary MI Detection</h3>
-            <p>Classifying 12-lead ECGs as Myocardial Infarction (MI) vs. Normal using the PTB-XL dataset with cardiologist-annotated SCP codes.</p>
+            <p>Classifying 12-lead ECGs as Myocardial Infarction (MI) vs. Pure Normal using PTB-XL, whose cardiologist-assigned SCP codes carry diagnostic confidence scores (0&ndash;100%).</p>
         </div>
         <div class="card">
             <div class="card-icon" style="background:rgba(46,204,113,0.1);">&#9878;</div>
-            <h3>Ablation Study Design</h3>
-            <p>Same normal cases across all three datasets. Only the MI label certainty varies — isolating the effect of ground truth quality on model performance.</p>
+            <h3>Controlled Comparison</h3>
+            <p>Every variant shares the same 4,451 Pure Normal training ECGs and the same certain-only validation and test sets. Only the certainty of the MI training labels changes.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon" style="background:rgba(241,196,15,0.1);">&#9673;</div>
+            <h3>Calibration First</h3>
+            <p>Alongside standard classification metrics we measure Expected Calibration Error (ECE) and Brier score &mdash; whether a predicted 80% MI risk really means 80%.</p>
         </div>
         <div class="card">
             <div class="card-icon" style="background:rgba(52,152,219,0.1);">&#9881;</div>
             <h3>Clinical Interpretability</h3>
-            <p>Explainable AI (Grad-CAM &amp; Integrated Gradients) validates that high-certainty labels produce models focusing on physiologically correct ECG regions.</p>
+            <p>Subclass-aware Integrated Gradients on both architectures checks whether models attend to the ECG leads that match the infarct territory (anterior vs. inferior MI).</p>
         </div>
     </div>
 </section>
@@ -224,9 +242,9 @@
 <!-- DATASETS -->
 <section id="datasets">
     <div class="section-label">Dataset Design</div>
-    <h2 class="section-title">Three Variants, One Question</h2>
+    <h2 class="section-title">Four Training Variants, One Question</h2>
     <p class="section-desc">
-        All training sets share the same 4,451 pure normal ECGs. They differ only in which MI cases are included &mdash; enabling a controlled comparison of label certainty.
+        From human-validated PTB-XL records we defined three groups &mdash; Pure Normal (NORM at 100%, no other statements), Certain MI (maximum MI confidence = 100%) and Uncertain MI (maximum MI confidence &lt; 100%) &mdash; and built four training sets that differ only in their MI cases.
     </p>
     <div class="table-wrap fade-in">
         <table>
@@ -247,35 +265,48 @@
                     <td>1,194</td>
                     <td>4,451</td>
                     <td>5,645</td>
-                    <td>100% confidence, human-validated</td>
+                    <td>100% certain</td>
                 </tr>
                 <tr>
                     <td><strong>Dataset C</strong></td>
                     <td><span class="tag tag-yellow">All MI</span></td>
-                    <td>2,387</td>
+                    <td>2,387 (1,194 + 1,193)</td>
                     <td>4,451</td>
                     <td>6,838</td>
-                    <td>Mixed (certain + uncertain)</td>
+                    <td>Mixed (~50% certain) &mdash; maximal data</td>
                 </tr>
                 <tr>
                     <td><strong>Dataset D</strong></td>
-                    <td><span class="tag tag-red">Uncertain MI</span></td>
+                    <td><span class="tag tag-red">Size-matched mix</span></td>
+                    <td>1,194 (597 + 597)</td>
+                    <td>4,451</td>
+                    <td>5,645</td>
+                    <td>50% certain &mdash; same size as A</td>
+                </tr>
+                <tr>
+                    <td><strong>Dataset B</strong></td>
+                    <td><span class="tag tag-blue">Uncertain MI</span></td>
                     <td>1,193</td>
                     <td>4,451</td>
                     <td>5,644</td>
-                    <td>&lt;100% confidence only</td>
+                    <td>&lt;100% only &mdash; exploratory</td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <p class="table-note">The primary comparison is A vs. D (label certainty at fixed training size); C shows the effect of adding uncertain data. B contains no confirmed MI and is excluded from the primary analysis.</p>
     <div class="card-grid fade-in" style="margin-top:2rem;">
         <div class="card">
             <h3>Patient-Wise Splitting</h3>
-            <p>Train, validation, and test sets have zero patient overlap &mdash; preventing data leakage and ensuring realistic performance estimates.</p>
+            <p>Official PTB-XL stratified folds (1&ndash;8 train, 9 validation, 10 test) keep every patient in exactly one split, preventing information leakage.</p>
         </div>
         <div class="card">
-            <h3>Shared Evaluation Sets</h3>
-            <p>Validation (1,234 records) and test (1,253 records) sets are identical across all variants for fair, controlled comparison.</p>
+            <h3>Shared Certain-Only Evaluation</h3>
+            <p>Uncertain MI is removed from validation and test. Validation: 977 ECGs (694 normal, 283 certain MI). Test: 971 ECGs (703 normal, 268 certain MI) &mdash; identical for every model.</p>
+        </div>
+        <div class="card">
+            <h3>Preprocessing</h3>
+            <p>10 s recordings at 100 Hz (1000 samples &times; 12 leads), 0.5 Hz Butterworth high-pass for baseline wander, and lead-wise Z-score normalisation fit on training data.</p>
         </div>
     </div>
 </section>
@@ -287,29 +318,31 @@
     <div class="section-label">Model Architectures</div>
     <h2 class="section-title">Two Architectures, Same Conclusion</h2>
     <p class="section-desc">
-        We compare a conventional hybrid architecture with a modern state space model to show our findings generalize across model families.
+        We compare a conventional hybrid architecture with an emerging state space model to show the findings hold across model families. Within each architecture, hyperparameters were held constant across all training variants.
     </p>
     <div class="arch-grid fade-in">
         <div class="arch-card cnn">
             <h3>CNN-LSTM Hybrid</h3>
             <p class="arch-detail"><strong>Type:</strong> Convolutional + Recurrent</p>
-            <p class="arch-detail"><strong>Parameters:</strong> ~367K trainable</p>
-            <p class="arch-detail"><strong>Framework:</strong> PyTorch</p>
-            <p class="arch-detail"><strong>XAI Method:</strong> Grad-CAM</p>
+            <p class="arch-detail"><strong>Parameters:</strong> 367,169</p>
+            <p class="arch-detail"><strong>Loss:</strong> Weighted BCE (inverse-frequency class weights)</p>
+            <p class="arch-detail"><strong>Optimizer:</strong> Adam + ReduceLROnPlateau</p>
+            <p class="arch-detail"><strong>XAI Method:</strong> Integrated Gradients</p>
             <div class="arch-specs">
                 <code>Input: (batch, 1000, 12)</code><br>
-                <code>3&times; Conv1D &rarr; BiLSTM &rarr; FC &rarr; Sigmoid</code>
+                <code>3&times; Conv1D (16&rarr;32&rarr;64) &rarr; BiLSTM (2&times;128) &rarr; FC 128&rarr;64&rarr;1 &rarr; Sigmoid</code>
             </div>
         </div>
         <div class="arch-card mamba">
             <h3>Bidirectional Mamba-2</h3>
             <p class="arch-detail"><strong>Type:</strong> State Space Model (SSM)</p>
-            <p class="arch-detail"><strong>Advantage:</strong> Linear complexity O(n)</p>
-            <p class="arch-detail"><strong>Framework:</strong> PyTorch</p>
-            <p class="arch-detail"><strong>XAI Method:</strong> Integrated Gradients (Captum)</p>
+            <p class="arch-detail"><strong>Parameters:</strong> 10,708,770</p>
+            <p class="arch-detail"><strong>Loss:</strong> Focal loss (&gamma; = 2, &alpha; = 0.75)</p>
+            <p class="arch-detail"><strong>Optimizer:</strong> AdamW + warmup / cosine decay</p>
+            <p class="arch-detail"><strong>XAI Method:</strong> Integrated Gradients</p>
             <div class="arch-specs">
                 <code>Input: (batch, 1000, 12)</code><br>
-                <code>BiMamba-2 blocks &rarr; Classifier &rarr; Sigmoid</code>
+                <code>Linear 12&rarr;256 &rarr; 6&times; Bi-Mamba-2 blocks &rarr; Attention pooling &rarr; 1 logit</code>
             </div>
         </div>
     </div>
@@ -320,52 +353,97 @@
 <!-- RESULTS -->
 <section id="results">
     <div class="section-label">Key Results</div>
-    <h2 class="section-title">Label Quality Wins &mdash; Consistently</h2>
+    <h2 class="section-title">Certain Labels Give Trustworthy Probabilities</h2>
     <p class="section-desc">
-        Across both architectures, Dataset A (highest label certainty) achieves the best discrimination, calibration, and interpretability.
+        All six models were evaluated on the same certain-only test set (971 ECGs). Training on diagnostically certain MI labels (Dataset A) produced the best-calibrated models for both architectures.
     </p>
 
     <div class="result-highlight fade-in">
-        <h3>Consistent Ranking Across Both Architectures</h3>
+        <h3>Calibration Ranking Holds Across Both Architectures</h3>
         <div class="ranking">
             <span class="a">Dataset A</span><span class="gt">&gt;</span><span class="c">Dataset C</span><span class="gt">&gt;</span><span class="d">Dataset D</span>
         </div>
-        <p>AUROC &bull; Accuracy &bull; Calibration (ECE) &bull; Brier Score &bull; Clinical Interpretability</p>
+        <p>Expected Calibration Error (ECE) &bull; Brier Score &mdash; for both CNN-LSTM and Bi-Mamba-2</p>
     </div>
 
-    <div class="table-wrap fade-in" style="margin-bottom:2rem;">
+    <div class="table-wrap fade-in">
         <table>
             <thead>
                 <tr>
                     <th>Metric</th>
-                    <th>CNN-LSTM (Dataset A)</th>
-                    <th>Description</th>
+                    <th>CNN-LSTM A</th>
+                    <th>CNN-LSTM C</th>
+                    <th>CNN-LSTM D</th>
+                    <th>Mamba-2 A</th>
+                    <th>Mamba-2 C</th>
+                    <th>Mamba-2 D</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td><strong>ROC-AUC</strong></td><td style="color:var(--green);font-weight:700;">99.06%</td><td>Near-perfect discrimination</td></tr>
-                <tr><td><strong>Accuracy</strong></td><td>95.87%</td><td>Overall correctness</td></tr>
-                <tr><td><strong>Recall</strong></td><td>93.31%</td><td>MI detection sensitivity</td></tr>
-                <tr><td><strong>Precision</strong></td><td>88.76%</td><td>False alarm rate control</td></tr>
-                <tr><td><strong>F1-Score</strong></td><td>90.98%</td><td>Balanced performance</td></tr>
-                <tr><td><strong>Specificity</strong></td><td>96.60%</td><td>Normal case identification</td></tr>
+                <tr><td><strong>Training set (n)</strong></td><td>5,645</td><td>6,838</td><td>5,645</td><td>5,645</td><td>6,838</td><td>5,645</td></tr>
+                <tr><td><strong>Accuracy (%)</strong></td><td class="best">96.81</td><td>95.57</td><td>93.72</td><td>95.37</td><td>96.29</td><td>92.17</td></tr>
+                <tr><td><strong>Recall (%)</strong></td><td>94.03</td><td>94.78</td><td>95.15</td><td>89.93</td><td class="best">96.27</td><td class="best">96.27</td></tr>
+                <tr><td><strong>Precision (%)</strong></td><td class="best">94.38</td><td>89.75</td><td>84.16</td><td>93.05</td><td>90.85</td><td>79.63</td></tr>
+                <tr><td><strong>F1-score (%)</strong></td><td class="best">94.21</td><td>92.20</td><td>89.32</td><td>91.46</td><td>93.48</td><td>87.16</td></tr>
+                <tr><td><strong>Specificity (%)</strong></td><td class="best">97.87</td><td>95.87</td><td>93.17</td><td>97.44</td><td>96.30</td><td>90.61</td></tr>
+                <tr><td><strong>AUROC</strong></td><td class="best">0.9933</td><td>0.9928</td><td>0.9891</td><td>0.9907</td><td>0.9919</td><td>0.9871</td></tr>
+                <tr><td><strong>AUPRC</strong></td><td class="best">0.9849</td><td>0.9834</td><td>0.9754</td><td>0.9794</td><td>0.9814</td><td>0.9728</td></tr>
+                <tr><td><strong>Brier score &darr;</strong></td><td class="best">0.0274</td><td>0.0326</td><td>0.0434</td><td>0.0341</td><td>0.0345</td><td>0.0647</td></tr>
+                <tr><td><strong>ECE &darr;</strong></td><td class="best">0.0184</td><td>0.0233</td><td>0.0465</td><td>0.0339</td><td>0.0617</td><td>0.1377</td></tr>
+                <tr><td><strong>False positives (of 703)</strong></td><td class="best">15</td><td>29</td><td>48</td><td>18</td><td>26</td><td>66</td></tr>
+                <tr><td><strong>Missed MI (of 268)</strong></td><td>16</td><td>14</td><td>13</td><td>27</td><td class="best">10</td><td class="best">10</td></tr>
             </tbody>
         </table>
     </div>
+    <p class="table-note" style="margin-bottom:2rem;">Green = best value across all six configurations. &darr; = lower is better.</p>
 
     <div class="card-grid fade-in">
         <div class="card">
-            <h3>Calibration Matters</h3>
-            <p>Dataset D showed significantly degraded ECE (Expected Calibration Error) on Mamba-2 &mdash; uncertain labels harm not just accuracy but model <strong>trustworthiness</strong>.</p>
+            <h3>Certainty Improves Calibration</h3>
+            <p>Dataset A gives the lowest ECE for both models &mdash; 0.0184 (CNN-LSTM) and 0.0339 (Mamba-2). Including uncertain labels raises it to 0.0233 / 0.0617 (C) and 0.0465 / 0.1377 (D).</p>
         </div>
         <div class="card">
-            <h3>Model Mirrors Human Uncertainty</h3>
-            <p>When cardiologists expressed lower diagnostic confidence, model prediction confidence dropped proportionally &mdash; clinically valuable for flagging ambiguous cases.</p>
+            <h3>More Data Helps Sensitivity</h3>
+            <p>All-MI training (Dataset C) gives Mamba-2 its strongest recall (96.27%, only 10 missed MI) and AUPRC (0.9814) &mdash; but at the cost of calibration.</p>
+        </div>
+        <div class="card">
+            <h3>Replacing Certain Labels Hurts</h3>
+            <p>At the same training size, swapping half the certain MI cases for uncertain ones (Dataset D) produces the most false alarms (48 for CNN-LSTM, 66 for Mamba-2) and the worst calibration.</p>
         </div>
         <div class="card">
             <h3>XAI Validates Clinical Relevance</h3>
-            <p>Dataset A models focus on V1&ndash;V4 for anterior MI and II/III/aVF for inferior MI. Dataset D models show diffuse, non-specific activations &mdash; losing interpretability.</p>
+            <p>Anterior MI attributions focus on V1&ndash;V3 in every configuration. For inferior MI, Datasets A and C keep an inferior lead (III or aVF) in the top 3; Dataset D does not.</p>
         </div>
+        <div class="card">
+            <h3>Deployment Guidance</h3>
+            <p>Dataset A suits probability-based risk stratification. Dataset C suits high-sensitivity screening and triage. Dataset D is consistently unfavourable.</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<!-- PUBLICATION -->
+<section id="publication">
+    <div class="section-label">Publication</div>
+    <h2 class="section-title">Read the Paper</h2>
+    <div class="pub-card fade-in">
+        <div class="pub-venue">IEEE International Symposium on Computer-Based Medical Systems (CBMS) 2026</div>
+        <h3>Quality Over Quantity: The Impact of Diagnostic Certainty of Data in Deep Learning for ECG Analysis</h3>
+        <p class="pub-authors">Mineth De Croos, Nisitha Padeniya, Chamath Rupasinghe, Isuri Devindi, Mary M. Maleckar, Roshan Ragel, J&oslash;rgen K. Kanters, Isuru Nawinne, Vajira Thambawita</p>
+        <p class="pub-affil">University of Peradeniya, Sri Lanka &bull; University of Maryland, College Park, USA &bull; Tulane University School of Medicine, USA &bull; Simula Research Laboratory, Norway &bull; University of Copenhagen, Denmark &bull; SimulaMet, Norway</p>
+        <div class="hero-actions" style="margin-bottom:1.5rem;">
+            <a href="https://www.computer.org/csdl/proceedings-article/cbms/2026/499900a068/2krxTvs42go" target="_blank" class="btn btn-primary">Read the Paper &#8599;</a>
+            <a href="https://github.com/cepdnaclk/e20-4yp-ECG-Based-MI-Detection" target="_blank" class="btn btn-outline">Code on GitHub</a>
+        </div>
+<div class="bibtex">@inproceedings{decroos2026qualityoverquantity,
+  title     = {Quality Over Quantity: The Impact of Diagnostic Certainty of Data in Deep Learning for ECG Analysis},
+  author    = {De Croos, Mineth and Padeniya, Nisitha and Rupasinghe, Chamath and Devindi, Isuri and Maleckar, Mary M. and Ragel, Roshan and Kanters, J{\o}rgen K. and Nawinne, Isuru and Thambawita, Vajira},
+  booktitle = {IEEE International Symposium on Computer-Based Medical Systems (CBMS)},
+  year      = {2026},
+  url       = {https://www.computer.org/csdl/proceedings-article/cbms/2026/499900a068/2krxTvs42go}
+}</div>
+        <p class="ack">This work is part of the European project SEARCH, supported by the Innovative Health Initiative Joint Undertaking (IHI JU) under grant agreement No. 101172997.</p>
     </div>
 </section>
 
@@ -380,29 +458,31 @@
     </p>
     <div class="team-grid fade-in">
         <div class="team-card">
-            <div class="team-avatar">CR</div>
-            <h3>Chamath Rupasinghe</h3>
-            <div class="reg">E/20/342</div>
-            <div class="role">CNN-LSTM &bull; Calibration Analysis &bull; XAI </div>
-        </div>
-        <div class="team-card">
-            <div class="team-avatar">MR</div>
-            <h3>M.L. De Croos Rubin</h3>
+            <div class="team-avatar">MD</div>
+            <h3>Mineth De Croos</h3>
             <div class="reg">E/20/054</div>
             <div class="role">Bidirectional Mamba-2</div>
         </div>
         <div class="team-card">
             <div class="team-avatar">NP</div>
-            <h3>S.M.N.N. Padeniya</h3>
+            <h3>Nisitha Padeniya</h3>
             <div class="reg">E/20/276</div>
-            <div class="role">Evaluation &bull; Dataset Design </div>
+            <div class="role">Evaluation &bull; Dataset Design &bull; XAI</div>
+        </div>
+        <div class="team-card">
+            <div class="team-avatar">CR</div>
+            <h3>Chamath Rupasinghe</h3>
+            <div class="reg">E/20/342</div>
+            <div class="role">CNN-LSTM &bull; XAI</div>
         </div>
     </div>
     <div class="supervisor-row fade-in">
-        <div class="supervisor-tag"><strong>Dr. Isuru Nawinne</strong> &mdash; Supervisor</div>
-        <div class="supervisor-tag"><strong>Dr. Vajira Thambavita</strong> &mdash; Co-supervisor</div>
-        <div class="supervisor-tag"><strong>Dr. Isuri Devindi</strong> &mdash; Co-supervisor</div>
-        <div class="supervisor-tag"><strong>Dr. J&oslash;rgen Kanters</strong> &mdash; Clinical Advisor</div>
+        <div class="supervisor-tag"><strong>Dr. Isuru Nawinne</strong> &mdash; University of Peradeniya</div>
+        <div class="supervisor-tag"><strong>Prof. Roshan Ragel</strong> &mdash; University of Peradeniya</div>
+        <div class="supervisor-tag"><strong>Dr. Vajira Thambawita</strong> &mdash; SimulaMet, Norway</div>
+        <div class="supervisor-tag"><strong>Ms. Isuri Devindi</strong> &mdash; University of Maryland, College Park</div>
+        <div class="supervisor-tag"><strong>Dr. J&oslash;rgen K. Kanters</strong> &mdash; University of Copenhagen</div>
+        <div class="supervisor-tag"><strong>Dr. Mary M. Maleckar</strong> &mdash; Tulane University School of Medicine; Simula Research Laboratory</div>
     </div>
 </section>
 
@@ -411,7 +491,9 @@
     <p>
         &copy; 2026 &mdash; Department of Computer Engineering, University of Peradeniya
         <br>
-        <a href="https://github.com/cepdnaclk/e20-co542-Quality-Over-Quantity-The-Impact-of-Diagnostic-Certainty" target="_blank">GitHub Repository</a>
+        <a href="https://github.com/cepdnaclk/e20-4yp-ECG-Based-MI-Detection" target="_blank">GitHub Repository</a>
+        &nbsp;&bull;&nbsp;
+        IEEE CBMS 2026
         &nbsp;&bull;&nbsp;
         PTB-XL Dataset &copy; PhysioNet
     </p>
@@ -425,7 +507,7 @@
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
     // Smooth scroll
-    document.querySelectorAll('nav a[href^="#"]').forEach(a => {
+    document.querySelectorAll('nav a[href^="#"], .hero-actions a[href^="#"]').forEach(a => {
         a.addEventListener('click', e => {
             e.preventDefault();
             const t = document.querySelector(a.getAttribute('href'));
