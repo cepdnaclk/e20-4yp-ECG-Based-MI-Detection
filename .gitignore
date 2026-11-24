@@ -1,2 +1,11 @@
 # Local-only working notes (not published)
 RESEARCH_CONTEXT.md
+notes/
+
+# Raw input data (PTB-XL download) - never committed
+data/raw/
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/

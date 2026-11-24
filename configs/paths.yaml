@@ -1,0 +1,9 @@
+# Where the input data lives and where outputs are written.
+# Relative paths are resolved against the repository root.
+# Override on the command line, e.g. --ptbxl-root /path/to/ptb-xl-1.0.3
+
+# Folder containing the official PTB-XL v1.0.3 files ptbxl_database.csv and scp_statements.csv
+ptbxl_root: data/raw/ptbxl
+
+# Output folder for the cohort CSVs (train/val/test lists for datasets A-D)
+cohorts_dir: data/cohorts

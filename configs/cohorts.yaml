@@ -1,0 +1,38 @@
+# Cohort definition settings, as used in the IEEE CBMS 2026 paper.
+# Changing any value here produces datasets that differ from the paper.
+
+# Official PTB-XL stratified folds -> split (patient-wise)
+splits:
+  train: [1, 2, 3, 4, 5, 6, 7, 8]
+  val: [9]
+  test: [10]
+
+# Dataset D: all train pure_normal + size-matched mix of certain and uncertain MI,
+# sampled patient-wise
+dataset_d:
+  n_certain: 597
+  n_uncertain: 597
+  seed_certain: 42
+  seed_uncertain: 43
+  seed_shuffle: 42
+
+# Expected counts from the paper. The build script stops if these do not match.
+expected:
+  # Table I: human-validated ECGs per group
+  human_validated:
+    pure_normal: 5848
+    certain_mi: 1745
+    uncertain_mi: 1732
+  # Table II / Fig. 1: per split, before uncertain MI is removed from val/test
+  train:
+    pure_normal: 4451
+    certain_mi: 1194
+    uncertain_mi: 1193
+  val:
+    pure_normal: 694
+    certain_mi: 283
+    uncertain_mi: 257
+  test:
+    pure_normal: 703
+    certain_mi: 268
+    uncertain_mi: 282
