@@ -17,6 +17,8 @@ dataset_d:
   seed_shuffle: 42
 
 # Expected counts from the paper. The build script stops if these do not match.
+# OPTIONAL: remove this section for experiments that change splits or group rules;
+# the script will then print the counts without checking them.
 expected:
   # Table I: human-validated ECGs per group
   human_validated:
